@@ -1,0 +1,117 @@
+#define WHEEL_CIRCUMFERENCE       (3.875*PI)  //in inches
+#define CLICKS_PER_REVOLUTION     1440.0
+#define DISTANCE_PER_CLICK        (WHEEL_CIRCUMFERENCE/CLICKS_PER_REVOLUTION)
+#define ARRAYSIZE(a) (sizeof(a)/sizeof(a[0]))
+int toggle = 0;
+task StartIR() {
+  while(true) {
+    IR = SensorValue[IRSeeker];
+    nxtDisplayBigTextLine(0, "%i", IR);
+  }
+}
+
+task watchdog(){
+  wait10Msec(delay);
+  StopAllTasks();
+}
+
+void AutoDrive(float inches, float speed = 30){
+
+  float clicks = (CLICKS_PER_REVOLUTION/WHEEL_CIRCUMFERENCE)*inches;
+  float goal = nMotorEncoder[ML] + clicks;
+
+  if(nMotorEncoder[ML] > goal)
+  {
+    while(nMotorEncoder[ML] > goal)
+    {
+      motor[FL] = -90;
+      motor[ML] = -90;
+      motor[BL] = -90;
+      motor[FR] = -100;
+      motor[MR] = -100;
+      motor[BR] = -100;
+    }
+  }
+  if(nMotorEncoder[ML] < goal){
+
+    while(nMotorEncoder[ML] < goal){
+      motor[FL] = 40;
+      motor[ML] = 40;
+      motor[BL] = 40;
+      motor[FR] = 100;
+      motor[MR] = 100;
+      motor[BR] = 100;
+    }
+  }
+}
+void left(float clicks){
+  int goal = nMotorEncoder[ML] -clicks;
+  while(nMotorEncoder[ML] > goal){
+    motor[FL] = -50;
+    motor[ML] = -50;
+    motor[BL] = -50;
+    motor[FR] = 50;
+    motor[MR] = 50;
+    motor[BR] = 50;
+  }
+}
+void right(float clicks){
+  while(nMotorEncoder[ML] < nMotorEncoder[ML] + clicks){
+    motor[FL] = 50;
+    motor[ML] = 50;
+    motor[BL] = 50;
+    motor[FR] = -50;
+    motor[MR] = -50;
+    motor[BR] = -50;
+  }
+}
+void WheelStop (float time){
+  motor[FL] = 0;
+  motor[ML] = 0;
+  motor[BL] = 0;
+  motor[FR] = 0;
+  motor[MR] = 0;
+  motor[BR] = 0;
+  wait10Msec(time);
+}
+// void flip (float time){
+// servo[flipper]= 0;
+// servoChangeRate[flipper] = 5;
+// wait10Msec(10);
+// servo[flipper]=255;
+// servoChangeRate[flipper] = 10;
+// }
+void ForwardSeek(float Distance, float Speed = 30, int IRangle)
+{
+  int Switch = 0;
+
+  int IRswitch = 1;
+
+  nMotorEncoder[ML] = 0;
+  while(nMotorEncoder[ML] < (Distance * (1440/(3.875 * PI))) && Switch == 0)
+  {
+    motor[FL] = Speed;
+    motor[ML] = Speed;
+    motor[BL] = Speed;
+    motor[FR] = Speed;
+    motor[MR] = Speed;
+    motor[BR] = Speed;
+
+
+    if(SensorValue[IRSeeker] == IRangle && IRswitch == 1)
+    {
+      IRswitch = 0;
+      WheelStop(100);
+      servo[flipper] = 255;
+      servoChangeRate[flipper]= 5;
+      wait1Msec(1000);
+      servo[flipper] = 0;
+      servoChangeRate[flipper]= 15;
+      if(toggle == 1)
+      {
+        Switch = 1;
+      }
+
+    }
+  }
+}
