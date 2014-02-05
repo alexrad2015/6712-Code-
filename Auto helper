@@ -58,6 +58,8 @@ void left(float clicks){
 void right(float clicks){
   int goal = nMotorEncoder[ML] + clicks; // goal needs to be set. value of [ML] changes (increases) during the while loop
   while(nMotorEncoder[ML] < goal){       // and therefore makes the ML + clicks unreachable.  
+    nxtDisplayTextLine(3,"ML Value: %i", nMotorEncoder[ML]);
+	  nxtDisplayTextLine(4,"Goal: %i", goal);
     motor[FL] = 50;
     motor[ML] = 50;
     motor[BL] = 50;
