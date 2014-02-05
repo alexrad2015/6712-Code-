@@ -45,7 +45,7 @@ void AutoDrive(float inches, float speed = 30){
   }
 }
 void left(float clicks){
-  int goal = nMotorEncoder[ML] -clicks;
+  int goal = nMotorEncoder[ML] - clicks;
   while(nMotorEncoder[ML] > goal){
     motor[FL] = -50;
     motor[ML] = -50;
@@ -56,7 +56,8 @@ void left(float clicks){
   }
 }
 void right(float clicks){
-  while(nMotorEncoder[ML] < nMotorEncoder[ML] + clicks){
+  int goal = nMotorEncoder[ML] + clicks; // goal needs to be set. value of [ML] changes (increases) during the while loop
+  while(nMotorEncoder[ML] < goal){       // and therefore makes the ML + clicks unreachable.  
     motor[FL] = 50;
     motor[ML] = 50;
     motor[BL] = 50;
